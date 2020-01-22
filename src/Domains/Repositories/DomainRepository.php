@@ -2,22 +2,21 @@
 
 namespace App\Domains\Repositories;
 
-use App\Domains\Models\Domain;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
-
-class DomainRepository
+class DomainRepository extends AbstractRepository
 {
-    /** @var EntityRepository */
-    private $em;
-
-    public function __construct(EntityManager $em)
+    /**
+     * @param string $host
+     * @param array $map
+     *
+     * @return array|\App\Domains\Models\Domain[]
+     */
+    public function findAllByHost(string $host, array $map)
     {
-        $this->em = $em->getRepository(Domain::class);
-    }
+        $domains = [];
+        foreach ($map as $topLevelDomain) {
+            $domains[] = $host . '.' . $topLevelDomain;
+        }
 
-    public function findOneByDomain(string $domain)
-    {
-        return $this->em->findOneBy(['domain' => $domain]);
+        return $this->findBy(['domain' => $domains]);
     }
 }

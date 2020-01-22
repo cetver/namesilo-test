@@ -4,14 +4,43 @@ namespace App\Controllers;
 
 use App\Controllers\Dtos\DomainDto;
 use App\Controllers\Params\GetDomainPricesParams;
-use Yii;
+use App\Domains\Services\DomainResponseService;
 use yii\filters\ContentNegotiator;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use yii\web\Request;
 use yii\web\Response;
 
 class DomainsController extends Controller
 {
+    /**
+     * @var GetDomainPricesParams
+     */
+    private $domainPricesParams;
+    /**
+     * @var Request
+     */
+    private $request;
+    /**
+     * @var DomainResponseService
+     */
+    private $domainResponse;
+
+    public function __construct(
+        $id,
+        $module,
+        GetDomainPricesParams $domainPricesParams,
+        Request $request,
+        DomainResponseService $domainResponse,
+        $config = []
+    )
+    {
+        $this->domainPricesParams = $domainPricesParams;
+        $this->request = $request;
+        $this->domainResponse = $domainResponse;
+        parent::__construct($id, $module, $config);
+    }
+
     /**
      * @inheritdoc
      */
@@ -35,19 +64,12 @@ class DomainsController extends Controller
      */
     public function actionCheck(): array
     {
-        $params = new GetDomainPricesParams();
-        if (!$params->load(Yii::$app->request->get(), '') || !$params->validate()) {
+        if (!$this->domainPricesParams->load($this->request->get(), '') ||
+            !$this->domainPricesParams->validate()
+        ) {
             throw new BadRequestHttpException();
         }
 
-        // todo найти список tld из таблицы
-        // todo создать список доменов
-        // todo проверить домены на корректность имени
-        // todo проверить наличие домена в таблице domain
-        // todo создать список dto с ценами для списка доменов
-
-        /** @var DomainDto[] $dtos */
-        $dtos = [];
-        return $dtos;
+        return $this->domainResponse->fetch($this->domainPricesParams->search);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Params;
 
+use App\Validators\DomainValidator;
 use yii\base\Model;
 
 class GetDomainPricesParams extends Model
@@ -12,8 +13,8 @@ class GetDomainPricesParams extends Model
     public function rules()
     {
         return [
-            ['search', 'required']
+            ['search', 'required'],
+            ['search', DomainValidator::class]
         ];
     }
-
 }
